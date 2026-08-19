@@ -56,7 +56,7 @@ const Signup = () => {
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message || "Signup failed. Please try again.");
         } finally{
             dispatch(setLoading(false));
         }
@@ -68,11 +68,11 @@ const Signup = () => {
         }
     },[])
     return (
-        <div>
+        <div className="min-h-screen bg-background text-foreground transition-colors">
             <Navbar />
-            <div className='flex items-center justify-center max-w-7xl mx-auto'>
-                <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-4 my-10'>
-                    <h1 className='font-bold text-xl mb-5'>Sign Up</h1>
+            <div className='flex items-center justify-center max-w-7xl mx-auto px-4'>
+                <form onSubmit={submitHandler} className='w-full sm:w-2/3 md:w-1/2 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-lg p-6 my-10 shadow-sm transition-colors'>
+                    <h1 className='font-bold text-xl mb-5 text-gray-900 dark:text-white'>Sign Up</h1>
                     <div className='my-2'>
                         <Label>Full Name</Label>
                         <Input
@@ -120,6 +120,7 @@ const Signup = () => {
                                     type="radio"
                                     name="role"
                                     value="student"
+                                    id="r1"
                                     checked={input.role === 'student'}
                                     onChange={changeEventHandler}
                                     className="cursor-pointer"
@@ -131,6 +132,7 @@ const Signup = () => {
                                     type="radio"
                                     name="role"
                                     value="recruiter"
+                                    id="r2"
                                     checked={input.role === 'recruiter'}
                                     onChange={changeEventHandler}
                                     className="cursor-pointer"

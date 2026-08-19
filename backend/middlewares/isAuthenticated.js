@@ -9,7 +9,8 @@ const isAuthenticated = async (req, res, next) => {
                 success: false,
             })
         }
-        const decode = await jwt.verify(token, process.env.SECRET_KEY);
+        const secretKey = process.env.SECRET_KEY || "jobportal-secret-key";
+        const decode = await jwt.verify(token, secretKey);
         if(!decode){
             return res.status(401).json({
                 message:"Invalid token",
@@ -20,6 +21,10 @@ const isAuthenticated = async (req, res, next) => {
         next();
     } catch (error) {
         console.log(error);
+        return res.status(401).json({
+            message: "Authentication error: " + error.message,
+            success: false
+        });
     }
 }
 export default isAuthenticated;

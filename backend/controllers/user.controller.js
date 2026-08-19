@@ -14,9 +14,20 @@ export const register = async (req, res) => {
                 success: false
             });
         };
+
+        let profilePhoto = "";
         const file = req.file;
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        if (file) {
+            try {
+                const fileUri = getDataUri(file);
+                const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+                if (cloudResponse && cloudResponse.secure_url) {
+                    profilePhoto = cloudResponse.secure_url;
+                }
+            } catch (cloudErr) {
+                console.log("Cloudinary upload error during register:", cloudErr.message);
+            }
+        }
 
         const user = await User.findOne({ email });
         if (user) {
@@ -34,7 +45,7 @@ export const register = async (req, res) => {
             password: hashedPassword,
             role,
             profile:{
-                profilePhoto:cloudResponse.secure_url,
+                profilePhoto: profilePhoto,
             }
         });
 
@@ -44,6 +55,10 @@ export const register = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: error.message || "Server error during registration.",
+            success: false
+        });
     }
 }
 export const login = async (req, res) => {
@@ -100,6 +115,10 @@ export const login = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: error.message || "Server error during login.",
+            success: false
+        });
     }
 }
 export const logout = async (req, res) => {
@@ -110,6 +129,10 @@ export const logout = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: error.message || "Server error during logout.",
+            success: false
+        });
     }
 }
 export const updateProfile = async (req, res) => {
@@ -117,11 +140,15 @@ export const updateProfile = async (req, res) => {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         
         const file = req.file;
-        // cloudinary ayega idhar
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-
-
+        let cloudResponse;
+        if (file) {
+            try {
+                const fileUri = getDataUri(file);
+                cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            } catch (cloudErr) {
+                console.log("Cloudinary upload error during update profile:", cloudErr.message);
+            }
+        }
 
         let skillsArray;
         if(skills){
@@ -143,7 +170,6 @@ export const updateProfile = async (req, res) => {
         if(bio) user.profile.bio = bio
         if(skills) user.profile.skills = skillsArray
       
-        // resume comes later here...
         if(cloudResponse){
             user.profile.resume = cloudResponse.secure_url // save the cloudinary url
             user.profile.resumeOriginalName = file.originalname // Save the original file name
@@ -168,5 +194,9 @@ export const updateProfile = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: error.message || "Server error during profile update.",
+            success: false
+        });
     }
 }
