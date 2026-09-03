@@ -71,7 +71,9 @@ const appRouter = createBrowserRouter([
     element:<ProtectedRoute><Applicants/></ProtectedRoute> 
   },
 
-])
+],{
+  basename: '/Job-Portal'
+})
 function App() {
 
   return (
